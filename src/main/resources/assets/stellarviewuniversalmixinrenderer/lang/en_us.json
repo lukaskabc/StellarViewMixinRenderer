@@ -1,0 +1,13 @@
+{
+  "itemGroup.stellarviewuniversalmixinrenderer": "Example Mod Tab",
+  "block.stellarviewuniversalmixinrenderer.example_block": "Example Block",
+  "item.stellarviewuniversalmixinrenderer.example_item": "Example Item",
+
+  "stellarviewuniversalmixinrenderer.configuration.title": "StellarView Universal Mixin renderer Configs",
+  "stellarviewuniversalmixinrenderer.configuration.section.stellarviewuniversalmixinrenderer.common.toml": "StellarView Universal Mixin renderer Configs",
+  "stellarviewuniversalmixinrenderer.configuration.section.stellarviewuniversalmixinrenderer.common.toml.title": "StellarView Universal Mixin renderer Configs",
+  "stellarviewuniversalmixinrenderer.configuration.items": "Item List",
+  "stellarviewuniversalmixinrenderer.configuration.logDirtBlock": "Log Dirt Block",
+  "stellarviewuniversalmixinrenderer.configuration.magicNumberIntroduction": "Magic Number Text",
+  "stellarviewuniversalmixinrenderer.configuration.magicNumber": "Magic Number"
+}
