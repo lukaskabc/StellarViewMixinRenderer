@@ -1,0 +1,145 @@
+name: Automatically publish to Modrinth and CurseForge
+# This action is triggered when a GitHub release is created/published
+# The release title is used as version name
+# The release tag is used as the version number
+# The release description is used as the changelog
+on:
+  workflow_dispatch:
+  release:
+    types: [ published ]
+
+
+env:
+  JAVA_VERSION: 21
+  # use only single mod loader, it is appended to the version
+  MOD_LOADER: neoforge
+  GAME_VERSIONS: |
+    [1.21.1]
+  GAME_VERSION_FILTER: releases
+  VERSION_TYPE: release
+  PRIMARY_FILE_GLOB: stellarview_mixin_renderer-*-neoforge.jar
+
+
+jobs:
+  build:
+    name: Build JAR
+    runs-on: ubuntu-latest
+    environment: github-actions
+    permissions:
+      contents: write
+    outputs:
+      tag_version: ${{ env.TAG }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'zulu'
+          java-version: ${{ env.JAVA_VERSION }}
+          cache: 'gradle'
+
+      - name: Set execution permissions for Gradle wrapper
+        run: chmod +x gradlew
+
+      - name: Extract and process tag version
+        # Resolves the TAG from the GitHub release and removes a leading 'v' if present (v1.0.0 -> 1.0.0)
+        id: extract_tag
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          if [[ "$TAG" == v* ]]; then
+            TAG=${TAG:1}
+          fi
+          echo "TAG=$TAG" >> $GITHUB_ENV
+
+      - name: Set version in gradle.properties
+        # replaces the mod_version property in gradle.properties with the extracted TAG version
+        run: |
+          sed -i "s/^mod_version=.*/mod_version=${{ env.TAG }}-${{ env.MOD_LOADER }}/" gradle.properties
+
+      - name: Build Release
+        run: ./gradlew build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: build/libs/${{ env.PRIMARY_FILE_GLOB }}
+
+  publish-to-github:
+    name: Attach JAR to GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+    environment: github-actions
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: artifacts
+
+      - name: Publish to GitHub
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-prerelease: false
+          files: artifacts/${{ env.PRIMARY_FILE_GLOB }}
+          version-type: ${{ env.VERSION_TYPE }}
+          loaders: ${{ env.MOD_LOADER }}
+          game-versions: ${{ env.GAME_VERSIONS }}
+          game-version-filter: ${{ env.GAME_VERSION_FILTER }}
+          java: ${{ env.JAVA_VERSION }}
+
+  publish-to-curseforge:
+    name: Publish to CurseForge
+    needs: build
+    runs-on: ubuntu-latest
+    environment: github-actions
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: artifacts
+
+      - name: Publish to CurseForge
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          curseforge-id: 1474053
+          curseforge-token: ${{ secrets.CURSEFORGE_TOKEN }}
+          files: artifacts/${{ env.PRIMARY_FILE_GLOB }}
+          version-type: ${{ env.VERSION_TYPE }}
+          loaders: ${{ env.MOD_LOADER }}
+          game-versions: ${{ env.GAME_VERSIONS }}
+          game-version-filter: ${{ env.GAME_VERSION_FILTER }}
+          java: ${{ env.JAVA_VERSION }}
+
+  publish-to-modrinth:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: github-actions
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: artifacts
+
+      - name: Publish to Modrinth
+        uses: Kir-Antipov/mc-publish@v3.3
+        with:
+          modrinth-id: gJ5LPGfO
+          modrinth-token: ${{ secrets.MODRINTH_TOKEN }}
+          files: artifacts/${{ env.PRIMARY_FILE_GLOB }}
+          version-type: ${{ env.VERSION_TYPE }}
+          loaders: ${{ env.MOD_LOADER }}
+          game-versions: ${{ env.GAME_VERSIONS }}
+          game-version-filter: ${{ env.GAME_VERSION_FILTER }}
+          java: ${{ env.JAVA_VERSION }}
