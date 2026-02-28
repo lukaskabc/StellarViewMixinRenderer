@@ -3,7 +3,7 @@
   "package": "cz.lukaskabc.minecraft.mod.stellarview.mixin_render.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
-    "LevelRendererMixin"
+    "ClientLevelMixin"
   ],
   "mixins": [],
   "injectors": {
