@@ -4,7 +4,7 @@
 
 Renders the Stellar View sky using a mixin.
 
-This allows setting custom [View Centers](https://moddedmc.wiki/en/project/stellarview/latest/docs/resourcepacks/view_centers) to dimensions with a datapack.
+This allows setting custom [View Centers](https://moddedmc.wiki/en/project/stellarview/latest/docs/resourcepacks/view_centers) to dimensions with a resourcepack.
 Otherwise, it is required for a mod that overrides the dimension type and implements custom [dimension special effects](https://moddedmc.wiki/en/project/stellarview/latest/docs/modding/custom_dimension_sky).
 
 [StellarView](https://github.com/Povstalec/StellarView) created by Povstalec
