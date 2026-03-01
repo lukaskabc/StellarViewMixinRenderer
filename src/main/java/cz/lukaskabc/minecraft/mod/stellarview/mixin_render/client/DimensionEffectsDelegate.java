@@ -1,4 +1,4 @@
-package cz.lukaskabc.minecraft.mod.stellarview.mixin_render;
+package cz.lukaskabc.minecraft.mod.stellarview.mixin_render.client;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
@@ -14,17 +14,24 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 
+import java.util.function.Predicate;
+
 /**
  * Delegates all calls to the original delegate.
  * Overrides {@link #adjustLightmapColors} and {@link #renderSky} to add custom StellarView behavior.
  */
 public class DimensionEffectsDelegate extends DimensionSpecialEffects {
     private final DimensionSpecialEffects delegate;
+    private final DimensionSpecialEffectsOverrides overrides;
 
-    public DimensionEffectsDelegate(DimensionSpecialEffects delegate) {
-        // calls delegate so it should not matter but whatever
-        super(delegate.getCloudHeight(), delegate.hasGround(), delegate.skyType(), delegate.forceBrightLightmap(), delegate.constantAmbientLight());
+    public DimensionEffectsDelegate(DimensionSpecialEffects delegate, DimensionSpecialEffectsOverrides overrides) {
+        super(overrides.cloudHeight().orElseGet(delegate::getCloudHeight),
+                overrides.hasGround().orElseGet(delegate::hasGround),
+                overrides.skyType().orElseGet(delegate::skyType),
+                overrides.forceBrightLightmap().orElseGet(delegate::forceBrightLightmap),
+                overrides.constantAmbientLight().orElseGet(delegate::constantAmbientLight));
         this.delegate = delegate;
+        this.overrides = overrides;
     }
 
     @Override
@@ -34,6 +41,12 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
 
     @Override
     public boolean isFoggyAt(int i, int i1) {
+        if (overrides.disableFog()) {
+            return false;
+        }
+        if (overrides.fogAlways()) {
+            return true;
+        }
         return this.delegate.isFoggyAt(i, i1);
     }
 
@@ -41,18 +54,24 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
     public void adjustLightmapColors(ClientLevel level, float partialTicks, float skyDarken, float blockLightRedFlicker, float skyLight, int pixelX, int pixelY, Vector3f colors) {
         StellarViewLightmapEffects.defaultLightmapColors(level, partialTicks, skyDarken, skyLight, blockLightRedFlicker, pixelX, pixelY, colors);
 
-        if(StellarView.isEnhancedCelestialsLoaded())
+        if (StellarView.isEnhancedCelestialsLoaded())
             EnhancedCelestialsCompatibility.adjustLightmapColors(level, partialTicks, skyDarken, skyLight, blockLightRedFlicker, pixelX, pixelY, colors);
     }
 
     @Override
     public boolean tickRain(ClientLevel level, int ticks, Camera camera) {
-        return delegate.tickRain(level, ticks, camera);
+        if (overrides.hasSnowAndRain()) {
+            return delegate.tickRain(level, ticks, camera);
+        }
+        return false;
     }
 
     @Override
     public boolean renderSnowAndRain(ClientLevel level, int ticks, float partialTick, LightTexture lightTexture, double camX, double camY, double camZ) {
-        return delegate.renderSnowAndRain(level, ticks, partialTick, lightTexture, camX, camY, camZ);
+        if (overrides.hasSnowAndRain()) {
+            return delegate.renderSnowAndRain(level, ticks, partialTick, lightTexture, camX, camY, camZ);
+        }
+        return false;
     }
 
     @Override
@@ -62,36 +81,17 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
 
     @Override
     public boolean renderClouds(ClientLevel level, int ticks, float partialTick, PoseStack poseStack, double camX, double camY, double camZ, Matrix4f modelViewMatrix, Matrix4f projectionMatrix) {
-        return delegate.renderClouds(level, ticks, partialTick, poseStack, camX, camY, camZ, modelViewMatrix, projectionMatrix);
-    }
-
-    @Override
-    public boolean constantAmbientLight() {
-        return delegate.constantAmbientLight();
-    }
-
-    @Override
-    public boolean forceBrightLightmap() {
-        return delegate.forceBrightLightmap();
-    }
-
-    @Override
-    public SkyType skyType() {
-        return delegate.skyType();
-    }
-
-    @Override
-    public boolean hasGround() {
-        return delegate.hasGround();
-    }
-
-    @Override
-    public float getCloudHeight() {
-        return delegate.getCloudHeight();
+        if (overrides.hasClouds()) {
+            return delegate.renderClouds(level, ticks, partialTick, poseStack, camX, camY, camZ, modelViewMatrix, projectionMatrix);
+        }
+        return false;
     }
 
     @Override
     public @Nullable float[] getSunriseColor(float timeOfDay, float partialTicks) {
-        return delegate.getSunriseColor(timeOfDay, partialTicks);
+        if (overrides.hasSunrise()) {
+            return delegate.getSunriseColor(timeOfDay, partialTicks);
+        }
+        return null;
     }
 }

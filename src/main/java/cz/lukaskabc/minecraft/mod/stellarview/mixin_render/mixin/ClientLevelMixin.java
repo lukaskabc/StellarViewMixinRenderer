@@ -1,6 +1,8 @@
 package cz.lukaskabc.minecraft.mod.stellarview.mixin_render.mixin;
 
-import cz.lukaskabc.minecraft.mod.stellarview.mixin_render.DimensionEffectsDelegate;
+import cz.lukaskabc.minecraft.mod.stellarview.mixin_render.client.DimensionEffectsDelegate;
+import cz.lukaskabc.minecraft.mod.stellarview.mixin_render.client.DimensionSpecialEffectsOverrides;
+import cz.lukaskabc.minecraft.mod.stellarview.mixin_render.client.DimensionSpecialEffectsRegistry;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.DimensionSpecialEffects;
@@ -45,7 +47,8 @@ public class ClientLevelMixin {
     ) {
         if (ViewCenters.isViewCenterPresent(dimension.location())) {
             Objects.requireNonNull(effects, "Original DimensionSpecialEffects in ClientLevel cannot be null");
-            this.effects = new DimensionEffectsDelegate(effects);
+            DimensionSpecialEffectsOverrides overrides = DimensionSpecialEffectsRegistry.getOrDefault(dimension.location());
+            this.effects = new DimensionEffectsDelegate(effects, overrides);
         }
     }
 }
