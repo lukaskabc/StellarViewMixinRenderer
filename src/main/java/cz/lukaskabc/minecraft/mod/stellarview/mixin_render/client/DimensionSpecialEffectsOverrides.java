@@ -41,5 +41,5 @@ public record DimensionSpecialEffectsOverrides(
             Codec.BOOL.optionalFieldOf("has_clouds", true).forGetter(DimensionSpecialEffectsOverrides::hasClouds)
     ).apply(instance, DimensionSpecialEffectsOverrides::new));
 
-    public static final DimensionSpecialEffectsOverrides WITH_DEFAULTS = CODEC.parse(JsonOps.COMPRESSED, new JsonObject()).getOrThrow();
+    public static final DimensionSpecialEffectsOverrides WITH_DEFAULTS = CODEC.parse(JsonOps.INSTANCE, new JsonObject()).getOrThrow();
 }
