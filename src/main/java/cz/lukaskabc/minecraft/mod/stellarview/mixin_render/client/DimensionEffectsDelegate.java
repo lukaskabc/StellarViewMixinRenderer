@@ -52,10 +52,7 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
 
     @Override
     public void adjustLightmapColors(ClientLevel level, float partialTicks, float skyDarken, float blockLightRedFlicker, float skyLight, int pixelX, int pixelY, Vector3f colors) {
-        StellarViewLightmapEffects.defaultLightmapColors(level, partialTicks, skyDarken, skyLight, blockLightRedFlicker, pixelX, pixelY, colors);
-
-        if (StellarView.isEnhancedCelestialsLoaded())
-            EnhancedCelestialsCompatibility.adjustLightmapColors(level, partialTicks, skyDarken, skyLight, blockLightRedFlicker, pixelX, pixelY, colors);
+        delegate.adjustLightmapColors(level, partialTicks, skyDarken, blockLightRedFlicker, skyLight, pixelX, pixelY, colors);
     }
 
     @Override
