@@ -60,7 +60,7 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
         if (overrides.hasSnowAndRain()) {
             return delegate.tickRain(level, ticks, camera);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -68,7 +68,7 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
         if (overrides.hasSnowAndRain()) {
             return delegate.renderSnowAndRain(level, ticks, partialTick, lightTexture, camX, camY, camZ);
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -81,7 +81,7 @@ public class DimensionEffectsDelegate extends DimensionSpecialEffects {
         if (overrides.hasClouds()) {
             return delegate.renderClouds(level, ticks, partialTick, poseStack, camX, camY, camZ, modelViewMatrix, projectionMatrix);
         }
-        return false;
+        return true;
     }
 
     @Override
