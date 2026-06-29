@@ -1,0 +1,14 @@
+{
+  "artifacts": [
+    {
+      "branch": "main",
+      "loaders": [
+        "neoforge"
+      ],
+      "game_versions": [
+        "1.21.1"
+      ],
+      "java_version": "21"
+    }
+  ]
+}
