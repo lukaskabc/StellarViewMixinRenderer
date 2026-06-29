@@ -1,0 +1,26 @@
+name: Draft Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version number (e.g. 1.2.3), must follow semver.org"
+        required: true
+        type: string
+      validate-only:
+        description: Only parse and validate the file publish.config.json
+        required: true
+        type: boolean
+        default: false
+
+# required to write to the github release
+permissions:
+  contents: write
+
+jobs:
+  draft-release:
+    uses: lukaskabc/Minecraft-Mod-Publish-Workflows/.github/workflows/draft-release.yml@main
+    with:
+      version: ${{ inputs.version }}
+      workflow_ref: "main" # must match the ref in "uses:"
+      validate-only: ${{ inputs.validate-only }}
